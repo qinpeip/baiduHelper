@@ -2,7 +2,7 @@ node_modules
 .DS_Store
 Thumbs.db
 *.log
-
+/.idea
 /dist
 /temp
 
@@ -10,3 +10,5 @@ Thumbs.db
 /app/app.js
 /app/background.js
 /app/**/*.map
+/app/**/*.exe
+/src/download

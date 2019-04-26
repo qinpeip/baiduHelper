@@ -1,0 +1,25 @@
+.baidu-bduss-container .bduss-input textarea {
+  width: 300px;
+  resize: none;
+  padding: 0;
+  box-sizing: border-box;
+}
+.baidu-bduss-container .submit-bduss button {
+  width: 300px;
+  height: 30px;
+  border: none;
+  background-color: #06a8ff;
+  color: #fff;
+  font-size: 16px;
+}
+.baidu-bduss-container .submit-bduss button:hover {
+  background-color: #059bec;
+}
+.baidu-bduss-container .error_message {
+  margin: 0;
+  line-height: 30px;
+}
+.baidu-bduss-container .error_message p {
+  margin: 0;
+}
+/*# sourceMappingURL=bduss.css.map */

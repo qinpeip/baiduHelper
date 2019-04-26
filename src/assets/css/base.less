@@ -1,0 +1,147 @@
+html, body, ul, li, a {
+  padding: 0;
+  margin: 0;
+  font-family: '微软雅黑';
+  list-style: none;
+  box-sizing: border-box;
+  text-decoration: none;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+.flex {
+  display: flex;
+}
+.flex-center {
+  justify-content: center;
+  align-items: center;
+}
+.flex-column {
+  flex-direction: column;
+  height: calc(100% - 78px);
+}
+.flex-column .account, .flex-column .password {
+  height: 30px;
+  width: 300px;
+  margin: 10px 0;
+  border: 1px solid rgb(238, 238, 238);
+  align-items: center;
+}
+.flex-column .account img, .flex-column .password img {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+.flex-column .account input, .flex-column .password input {
+  width: 100%;
+  border: none;
+  outline: none;
+}
+.error_message {
+  margin-top: -30px;
+    height: 30px;
+  p {
+    color: red;
+    display: none;
+  }
+}
+.operation {
+  margin: 10px 0;
+  height: 30px;
+  width: 300px;
+  color: rgb(102,102,102);
+  font-size: 12px;
+  label {
+    margin-right: 10px;
+  }
+}
+.submit {
+  button {
+    width: 300px;
+    height: 30px;
+    outline: none;
+    border: none;
+    background-color: rgb(6, 168, 255);
+    font-size: 16px;
+    color: #fff;
+    &:hover {
+      background-color: rgb(5, 155, 236);
+    }
+  }
+}
+.baidu-header {
+  background-color: rgb(239,242,246);
+  height: 78px;
+  position: relative;
+  -webkit-app-region:no-drag;
+  .go-back {
+    position: absolute;
+    display: none;
+    left: 10px;
+    a {
+      font-size: 14px;
+    }
+  }
+}
+.baidu-header h1 {
+  font-size: 22px;
+  margin-left: 5px;
+}
+.baidu-header img {
+  width: 40px;
+  height: 30px;
+}
+.baidu-operation {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+}
+.valid {
+  display: none;
+  height: 30px;
+  width: 300px;
+  margin: 10px 0;
+  input {
+    border: 1px solid rgb(238, 238, 238);
+    outline: none;
+  }
+}
+.baidu-operation .hidden, .baidu-operation .close {
+  width: 25px;
+  height: 25px;
+  line-height: 25px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 100;
+  cursor: default;
+  transition: background-color .3s;
+  margin: 0 3px;
+}
+.baidu-operation .hidden {
+  width: 12px;
+  overflow: hidden;
+}
+.baidu-operation .hidden:hover {
+  color: blue;
+}
+.baidu-operation .hidden:focus {
+  background-color: #eee;
+}
+.baidu-operation .close:hover {
+  background-color: rgba(250,0,0, 1);
+  color: #fff;
+}
+
+.baidu-container {
+  display: none;
+}
+.download-message {
+  height: calc(100% - 78px);
+  font-size: 16px;
+  overflow: auto;
+  p {
+    margin: 5px 0;
+  }
+}
