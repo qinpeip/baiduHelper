@@ -5,7 +5,13 @@ let win = null
 function createWindow () {
 
   // 创建window对象
-  win = new BrowserWindow({width: 662, height: 442, frame: false})
+  win = new BrowserWindow({
+    width: 662, // 宽
+    height: 442, // 高
+    frame: false, // 是否显示默认边框
+    resizable: false, // 是否可以缩放
+    movable: true, // 是否可以拖动
+  })
   // 加载html
   win.loadURL(
     url.format({

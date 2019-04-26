@@ -25,7 +25,7 @@ $('.baidu_icon').attr({src: baiduIcon})
 
 $('.close').click(() => mainWindow.close())
 
-$('.hidden').click(() => mainWindow.hide())
+$('.hidden').click(() => mainWindow.minimize())
 
 let loginStep = 0
 

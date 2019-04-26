@@ -11,4 +11,5 @@ Thumbs.db
 /app/background.js
 /app/**/*.map
 /app/**/*.exe
+/app/**/*.png
 /src/download

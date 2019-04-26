@@ -33,7 +33,7 @@ async function bindClickHandle() {
     let index = $(this).data('index')
     let isFolder = list[index].isFolder
     if (isFolder) {
-      let message = await subProcess.runOrder(`cd ${list[index].name}`)
+      let message = await subProcess.runOrder(`cd \"${list[index].name}\"`)
       if (message.code === 0) {
         let data = await getList()
         const { list } = data

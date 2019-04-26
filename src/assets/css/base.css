@@ -80,12 +80,12 @@ body {
   background-color: #eff2f6;
   height: 78px;
   position: relative;
-  -webkit-app-region: no-drag;
 }
 .baidu-header .go-back {
   position: absolute;
   display: none;
   left: 10px;
+  -webkit-app-region: no-drag;
 }
 .baidu-header .go-back a {
   font-size: 14px;
@@ -124,6 +124,7 @@ body {
   cursor: default;
   transition: background-color 0.3s;
   margin: 0 3px;
+  -webkit-app-region: no-drag;
 }
 .baidu-operation .hidden {
   width: 12px;

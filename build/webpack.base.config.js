@@ -40,7 +40,7 @@ module.exports = env => {
           use: [{
             loader: 'file-loader',
             options: {
-              name: '[name].exe'
+              name: '[name].[ext]'
             }
           }]
         }
