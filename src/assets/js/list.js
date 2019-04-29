@@ -10,6 +10,7 @@ const getList = async () => {
 
 
 export async function  runGenerateListPage () {
+  // $('body').append(`<div class="progress"></div>`)
   let data = await getList()
   const { list } = data
 $('body').append($(createElement(list)))
@@ -33,8 +34,10 @@ async function bindClickHandle() {
     let index = $(this).data('index')
     let isFolder = list[index].isFolder
     if (isFolder) {
+      showProgress()
       let message = await subProcess.runOrder(`cd \"${list[index].name}\"`)
       if (message.code === 0) {
+        closeProgress()
         let data = await getList()
         const { list } = data
         $('.catalog-list').remove()
@@ -57,6 +60,16 @@ function createElement (data) {
   })
   template+='</ul>'
   return template
+}
+
+
+
+function showProgress () {
+  $('body').append(`<div class="progress"></div>`)
+}
+
+function closeProgress () {
+  $('.progress').remove()
 }
 
 

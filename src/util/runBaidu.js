@@ -1,9 +1,16 @@
 import $ from "../assets/js/jquery";
 import {runGenerateListPage} from "../assets/js/list";
 
-const {spawn } = require('child_process')
+const { spawn } = require('child_process')
+const fs = require('fs')
+const path = require('path')
 import { runDownloadPage } from '../assets/js/downPage.js'
-import baidu from '../BaiduPCS-Go.exe';
+import baidu from '../../BaiduPCS-Go.exe';
+if (!fs.existsSync(baidu) && process.env.NODE_ENV !== 'development') {
+  let a = fs.readFileSync(`${__dirname}/${baidu}`)
+  fs.writeFileSync(path.resolve(__dirname, `../../../${baidu}`), a)
+}
+
 let subProcess = spawn(baidu)
 
 subProcess.on('error', (err) => {console.log('err', err)})
@@ -23,12 +30,13 @@ function onData (data) {
     if (isFirst) {
       isFirst = false
     } else {
-      message += data.toString()
+      message += data
     }
   }
 }
 
 
+subProcess.stdout.setEncoding('utf8');
 subProcess.stdout.on('data', onData)
 subProcess.stderr.on('data', onData)
 subProcess.on('close', (code) => {console.log(`子进程退出${code}`)})
@@ -45,10 +53,12 @@ subProcess.runOrder = async (order, isDownload = false) => {
         if (message) {
           if (message.includes('No permission to do this operation')) {
             bugfix(4)
+            message = null
             return
           }
           if (message.includes('保存配置成功')) {
-            subProcess.stdin.write(`${order}\n`);
+            subProcess.stdin.write(`ls\n`);
+            message = null
             return
           }
           if (isLoginSuccess && /(---)$/.test(message.trim())) {

@@ -2,7 +2,7 @@
   "name": "electron-boilerplate",
   "productName": "baiduHelper",
   "description": "百度网盘助手",
-  "version": "0.0.1",
+  "version": "2.0.8",
   "private": true,
   "author": "qinpeipei",
   "copyright": "© 2017, Gumby inc.",
@@ -18,7 +18,12 @@
     "directories": {
       "buildResources": "resources"
     },
-    "publish": null,
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://qppml.com.cn"
+      }
+    ],
     "win": {
       "icon": "baiduHelper.ico"
     }
@@ -34,6 +39,7 @@
     "build": "webpack --config=build/webpack.app.config.js --env=production && electron-builder"
   },
   "dependencies": {
+    "electron-updater": "^4.0.6",
     "fs-jetpack": "^2.1.0"
   },
   "devDependencies": {
@@ -43,7 +49,7 @@
     "babel-plugin-transform-object-rest-spread": "^7.0.0-beta.3",
     "chai": "^4.1.0",
     "css-loader": "^1.0.0",
-    "electron": "2.0.2",
+    "electron": "^4.1.5",
     "electron-builder": "^20.15.1",
     "electron-mocha": "^6.0.4",
     "friendly-errors-webpack-plugin": "^1.7.0",

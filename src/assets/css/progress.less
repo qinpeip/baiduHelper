@@ -1,0 +1,28 @@
+.progress-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(76,76,76,.8);
+  color: #ffc107;
+  .progress-content {
+    display: flex;
+    font-size: 14px;
+    .update-progress {
+      width: 150px;
+      height: 20px;
+      border: 1px solid #e5f1ef;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0 10px;
+      .update-progress-child {
+        display: inline-block;
+        height: 100%;
+        width: 0;
+        background-color: rgb(6, 168, 255);
+      }
+    }
+  }
+
+}

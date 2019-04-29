@@ -1,7 +1,9 @@
 const mainWindow = require('electron').remote.getCurrentWindow();
+import { ipcRenderer } from 'electron'
 import '../css/bduss.css'
 import '../css/base.css'
 import '../css/list.css'
+import '../css/progress.css'
 
 // 图片资源
 import back from '../image/back.png';
@@ -11,6 +13,25 @@ import $ from './jquery.js'
 import { runGenerateListPage } from './list.js'
 import subProcess from '../../util/runBaidu';
 import './bduss'
+import { showUpdateProgress } from './update.js';
+
+// 发送检查更新事件
+console.log('发送检查事件')
+ipcRenderer.send('checkForUpdates')
+
+ipcRenderer.on('updateMessage', (e, message) => {
+  if (message) {
+    showUpdateProgress()
+  } else {
+    $('.progress-mask').remove()
+  }
+})
+
+ipcRenderer.on('progressMessage', (e, data) => {
+  $('.bytesPresecond').html(data.percent.toFixed(2) + '%')
+  $('.update-progress-child').css({width: `${data.percent}%`})
+  $('.progress-dian').toggle()
+})
 
 const submitBtn = $('.submit button')
 const accout = $('.account input')

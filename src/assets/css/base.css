@@ -151,4 +151,31 @@ body {
 .download-message p {
   margin: 5px 0;
 }
+.progress {
+  position: fixed;
+  top: 0px;
+  left: 0;
+  height: 5px;
+  width: 100%;
+  background-color: #fff;
+}
+.progress::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  zoom: 0;
+  height: 100%;
+  width: 200px;
+  background-color: rgba(38, 150, 255, 0.5);
+  animation: moveX 2s ease-in-out infinite;
+}
+@keyframes moveX {
+  to {
+    width: 900px;
+  }
+  from {
+    width: 200px;
+  }
+}
 /*# sourceMappingURL=base.css.map */
