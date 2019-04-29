@@ -1,9 +1,16 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+import {openDocument} from "./index";
+
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const { autoUpdater } =  require('electron-updater')
 const fs = require('fs')
 const path = require('path')
 const url = require('url')
+const localStorage = require('./util/localStorage')
 let win = null
+
+
+
+
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 
@@ -60,6 +67,18 @@ function createWindow () {
     autoUpdater.checkForUpdates()
   })
 
+  localStorage.install(win)
+}
+
+
+ipcMain.on('openDirectory', () => {
+  openDialog(['openDirectory'])
+  win.webContents.send('setsaveDirSuccess')
+})
+function openDialog (types) {
+  dialog.showOpenDialog({properties: types}, function (filePath) {
+    filePath && win.localStorageSet('downloadFilePath', filePath[0].replace(/\\/g, '/'))
+  })
 }
 
 
@@ -80,6 +99,10 @@ if (!gotLock) {
 
 // electorn 初始化后, 部分api才可以调用, 所以在初始化以后才执行创建窗口的函数
 app.on('ready', createWindow)
+
+// 当所有窗口关闭时, 退出主进程
 app.on('window-all-closed', () => {
   app.quit()
 })
+
+

@@ -4,7 +4,7 @@ const base = require("./webpack.base.config");
 const fs = require('fs')
 
 
-deleteFolderRecursive('./dist')
+process.env.NODE_ENV !== 'development'&&deleteFolderRecursive('./dist')
 function deleteFolderRecursive(path) {
   if( fs.existsSync(path) ) {
     fs.readdirSync(path).forEach(function(file) {

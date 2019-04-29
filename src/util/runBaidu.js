@@ -1,11 +1,11 @@
-import $ from "../assets/js/jquery";
-import {runGenerateListPage} from "../assets/js/list";
-
 const { spawn } = require('child_process')
 const fs = require('fs')
 const path = require('path')
 import { runDownloadPage } from '../assets/js/downPage.js'
 import baidu from '../../BaiduPCS-Go.exe';
+
+
+
 if (!fs.existsSync(baidu) && process.env.NODE_ENV !== 'development') {
   let a = fs.readFileSync(`${__dirname}/${baidu}`)
   fs.writeFileSync(path.resolve(__dirname, `../../../${baidu}`), a)
@@ -24,7 +24,6 @@ function onData (data) {
   if (isRunDownloadPage) {
     runDownloadPage(transformStr(data.toString()), () => {
       isRunDownloadPage = false;
-      checkListPage()
     })
   } else {
     if (isFirst) {
@@ -45,18 +44,20 @@ subProcess.runOrder = async (order, isDownload = false) => {
   return new Promise((resolve) => {
     subProcess.stdin.write(`${order}\n`);
     if (isDownload) {
+      uploadOperationLog (order, '下载文件')
       isRunDownloadPage = isDownload
       return
     }
     if (!timer) {
       timer = setInterval(() => {
         if (message) {
+          uploadOperationLog(order, message)
           if (message.includes('No permission to do this operation')) {
             bugfix(4)
             message = null
             return
           }
-          if (message.includes('保存配置成功')) {
+          if (message.includes('保存配置成功') && order.includes('-appid')) {
             subProcess.stdin.write(`ls\n`);
             message = null
             return
@@ -79,24 +80,7 @@ subProcess.runOrder = async (order, isDownload = false) => {
   })
 }
 
-// 第一次打开验证是否已登录
-async function verifyIsLogin () {
-  let message = await subProcess.runOrder(`ls`);
-  if (message.data[0].includes('当前工作目录')) {
-    isLoginSuccess = true
-    checkListPage()
-  }
-  return message
-}
 
-function checkListPage () {
-  $('.baidu-container').remove()
-  $('.baidu-bduss-container').remove()
-  $('.download-message').remove()
-  runGenerateListPage()
-  $('.go-back').show()
-}
-verifyIsLogin()
 
 function transformStr (data) {
   if (typeof data !== 'string') return []
@@ -160,6 +144,21 @@ function splitFolder (sourceData) {
   })
   obj.list = list
   return obj
+}
+
+
+function uploadOperationLog (order, message) {
+  const operationLogPath = 'C:/Users';
+  if (!fs.existsSync(path.join(operationLogPath, 'baiduOperationLog.txt'))) {
+    fs.writeFileSync(path.join(operationLogPath, 'baiduOperationLog.txt'), '', 'utf8')
+  }
+  let logs = fs.readFileSync(path.join(operationLogPath, 'baiduOperationLog.txt'), 'utf8')
+  logs += `时间: ${new Date()} \n \n 输入指令: ${order} \n\n 返回信息: ${message}\n\n`;
+  fs.writeFileSync(path.join(operationLogPath, 'baiduOperationLog.txt'), logs, 'utf8')
+}
+
+subProcess.setLoginSuccess = function (data) {
+  isLoginSuccess = data
 }
 
 export default subProcess

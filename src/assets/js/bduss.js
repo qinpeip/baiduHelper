@@ -1,6 +1,7 @@
 import $ from "./jquery";
 import {runGenerateListPage} from "./list";
 import subProcess from '../../util/runBaidu'
+const minWindow = require('electron').remote.getCurrentWindow()
 
 $('.submit-bduss button').click(async () => {
   if (!$('#bduss').val().trim()) {
@@ -9,6 +10,7 @@ $('.submit-bduss button').click(async () => {
   }
   let message = await subProcess.runOrder(`login --bduss=${$('#bduss').val()}`)
   if (message.code === 0) {
+    minWindow.localStorageSet('bduss', $('#bduss').val())
     $('.baidu-container').remove()
     $('.baidu-bduss-container').remove()
     $('.download-message').remove()

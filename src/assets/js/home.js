@@ -1,4 +1,7 @@
+
 const mainWindow = require('electron').remote.getCurrentWindow();
+import fs from 'fs';
+import path from 'path';
 import { ipcRenderer } from 'electron'
 import '../css/bduss.css'
 import '../css/base.css'
@@ -9,14 +12,14 @@ import '../css/progress.css'
 import back from '../image/back.png';
 import baiduIcon from '../image/baidu_icon.png'
 
+import '../../util/localStorage'
 import $ from './jquery.js'
-import { runGenerateListPage } from './list.js'
 import subProcess from '../../util/runBaidu';
+import { runGenerateListPage } from './list'
 import './bduss'
 import { showUpdateProgress } from './update.js';
 
 // 发送检查更新事件
-console.log('发送检查事件')
 ipcRenderer.send('checkForUpdates')
 
 ipcRenderer.on('updateMessage', (e, message) => {
@@ -96,10 +99,32 @@ $(submitBtn).click(async () =>{
  }
 })
 
- function checkListPage() {
+
+// 第一次打开验证是否已登录
+async function verifyIsLogin () {
+  if (fs.existsSync(path.join(process.cwd(), './pcs_config.json'))) {
+    let loginUsedata = JSON.parse(fs.readFileSync(path.join(process.cwd(), './pcs_config.json')))
+    if (loginUsedata.baidu_user_list[0] && loginUsedata.baidu_user_list[0].bduss) {
+      checkListPage()
+    }
+  } else {
+    // 尝试自动登录
+    let bduss = mainWindow.localStorageGet('bduss')
+    if (bduss) {
+      let message = await subProcess.runOrder(`login --bduss=${bduss}`)
+      if (message.code === 0) {
+        checkListPage()
+      }
+    }
+  }
+}
+
+function checkListPage () {
+  subProcess.setLoginSuccess(true)
   $('.baidu-container').remove()
   $('.baidu-bduss-container').remove()
   $('.download-message').remove()
   runGenerateListPage()
   $('.go-back').show()
 }
+verifyIsLogin()

@@ -1,16 +1,14 @@
 import subProcess from '../../util/runBaidu';
 import $ from './jquery'
-import { remote } from 'electron';
+import { remote, ipcRenderer } from 'electron';
 const mainWindow = remote.getCurrentWindow()
 
-const getList = async () => {
+async function getList() {
   let message = await subProcess.runOrder('ls')
   return message
 }
 
-
-export async function  runGenerateListPage () {
-  // $('body').append(`<div class="progress"></div>`)
+ export async function runGenerateListPage () {
   let data = await getList()
   const { list } = data
 $('body').append($(createElement(list)))
@@ -45,8 +43,23 @@ async function bindClickHandle() {
         bindClickHandle()
       }
     } else {
-      let message = await subProcess.runOrder(`d ${list[index].name}`, true)
-      console.log(message)
+      let downloadFilePath = mainWindow.localStorageGet('downloadFilePath')
+      if (!downloadFilePath) {
+        ipcRenderer.send('openDirectory')
+        ipcRenderer.on('setsaveDirSuccess', async () => {
+          let message = await subProcess.runOrder(`config set -savedir \"${downloadFilePath}\"`)
+          if (message.code == 0) {
+            let message = await subProcess.runOrder(`d ${list[index].name}`, true)
+            console.log(message)
+          }
+        })
+      } else {
+        let message = await subProcess.runOrder(`config set -savedir \"${downloadFilePath}\"`)
+        if (message.code == 0) {
+          let message = await subProcess.runOrder(`d \"${list[index].name}\"`, true)
+          console.log(message)
+        }
+      }
     }
   })
 }
@@ -71,5 +84,6 @@ function showProgress () {
 function closeProgress () {
   $('.progress').remove()
 }
+
 
 
