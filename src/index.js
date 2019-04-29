@@ -31,6 +31,8 @@ function createWindow () {
   // 当窗口关闭的时候会触发的事件
   win.on('closed', () => win = null)
 
+
+
   autoUpdater.on('error', function (error) {
     win.webContents.send('updateMessage', false)
   });
@@ -60,5 +62,24 @@ function createWindow () {
 
 }
 
+
+// 实现单实例, 只打开一个窗口
+  const gotLock = app.requestSingleInstanceLock();
+if (!gotLock) {
+  app.quit()
+} else {
+  app.on('second-instance', () => {
+    // 当运行第二个实例时,将会聚焦到当前这个window窗口
+    if (win) {
+      if (win.isMinimized) win.restore()
+      win.focus()
+    }
+  })
+}
+
+
 // electorn 初始化后, 部分api才可以调用, 所以在初始化以后才执行创建窗口的函数
 app.on('ready', createWindow)
+app.on('window-all-closed', () => {
+  app.quit()
+})

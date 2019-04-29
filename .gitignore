@@ -13,3 +13,7 @@ Thumbs.db
 /app/**/*.exe
 /app/**/*.png
 /src/download
+checking-for-update.txt
+pcs_command_history.txt
+pcs_config.json
+update-not-available.txt
