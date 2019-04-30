@@ -2,13 +2,15 @@ import subProcess from '../../util/runBaidu';
 import $ from './jquery'
 import { remote, ipcRenderer } from 'electron';
 const mainWindow = remote.getCurrentWindow()
-
+let listData = []
 async function getList() {
   let message = await subProcess.runOrder('ls')
+  listData = message
   return message
 }
 
  export async function runGenerateListPage () {
+   if (subProcess.isRunOrder) return
   let data = await getList()
   const { list } = data
 $('body').append($(createElement(list)))
@@ -26,17 +28,17 @@ $('body').append($(createElement(list)))
 }
 
 async function bindClickHandle() {
-  let data = await getList()
-  const { list } = data
+  const { list } = listData
   $('.catalog-list').on('click', 'li span a', async function () {
     let index = $(this).data('index')
     let isFolder = list[index].isFolder
     if (isFolder) {
+      if (subProcess.isRunOrder) return
       showProgress()
       let message = await subProcess.runOrder(`cd \"${list[index].name}\"`)
       if (message.code === 0) {
         closeProgress()
-        let data = await getList()
+        let data = await await getList()
         const { list } = data
         $('.catalog-list').remove()
         $('body').append($(createElement(list)))

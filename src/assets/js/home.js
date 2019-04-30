@@ -105,7 +105,7 @@ async function verifyIsLogin () {
   if (fs.existsSync(path.join(process.cwd(), './pcs_config.json'))) {
     let loginUsedata = JSON.parse(fs.readFileSync(path.join(process.cwd(), './pcs_config.json')))
     if (loginUsedata.baidu_user_list[0] && loginUsedata.baidu_user_list[0].bduss) {
-      checkListPage()
+      setTimeout(() => {checkListPage()}, 200)
     }
   } else {
     // 尝试自动登录

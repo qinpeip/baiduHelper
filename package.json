@@ -2,7 +2,7 @@
   "name": "electron-boilerplate",
   "productName": "baiduHelper",
   "description": "百度网盘助手",
-  "version": "2.1.1",
+  "version": "2.1.6",
   "private": true,
   "author": "qinpeipei",
   "copyright": "© 2017, Gumby inc.",

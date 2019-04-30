@@ -1,6 +1,7 @@
 const { spawn } = require('child_process')
 const fs = require('fs')
 const path = require('path')
+const { dialog } = require('electron').remote
 import { runDownloadPage } from '../assets/js/downPage.js'
 import baidu from '../../BaiduPCS-Go.exe';
 
@@ -20,6 +21,8 @@ let isFirst = true
 let timer = null
 let isLoginSuccess = false
 let isRunDownloadPage = false
+let operations = []
+
 function onData (data) {
   if (isRunDownloadPage) {
     runDownloadPage(transformStr(data.toString()), () => {
@@ -40,7 +43,11 @@ subProcess.stdout.on('data', onData)
 subProcess.stderr.on('data', onData)
 subProcess.on('close', (code) => {console.log(`子进程退出${code}`)})
 subProcess.stdin.setEncoding('utf8');
+
+subProcess.isRunOrder = false
+
 subProcess.runOrder = async (order, isDownload = false) => {
+  subProcess.isRunOrder = true
   return new Promise((resolve) => {
     subProcess.stdin.write(`${order}\n`);
     if (isDownload) {
@@ -51,7 +58,8 @@ subProcess.runOrder = async (order, isDownload = false) => {
     if (!timer) {
       timer = setInterval(() => {
         if (message) {
-          uploadOperationLog(order, message)
+          operations.push({order, message})
+          uploadOperationLog()
           if (message.includes('No permission to do this operation')) {
             bugfix(4)
             message = null
@@ -62,6 +70,22 @@ subProcess.runOrder = async (order, isDownload = false) => {
             message = null
             return
           }
+          if (message.includes('timeout awaiting response headers')) {
+            subProcess.stdin.write(`${order}\n`)
+            message = null
+            return
+          }
+          if (message.includes('wsarecv: An existing connection was forcibly closed by the remote host.')) {
+            dialog.showErrorBox('服务器错误', '远程主机强制关闭了现有连接。')
+            message = null
+            clearInterval(timer)
+            timer = null
+            return
+          }
+          if (isLoginSuccess && order === 'ls' && !/(---)$/.test(message.trim())) return
+
+          subProcess.isRunOrder = false
+
           if (isLoginSuccess && /(---)$/.test(message.trim())) {
             resolve(splitFolder(transformStr(message)))
             message = null
@@ -121,6 +145,10 @@ function bugfix (code) {
 function splitFolder (sourceData) {
   let { code, data } = sourceData
   let obj = {}
+  if (data[0].includes('BaiduPCS-Go')) {
+    let index = data.findIndex(item => item.includes('当前工作目录')) || 0
+    data = data.slice(index)
+  }
   data = data.filter(item => !item.includes('---'))
   obj.code = code
   // 获取当前工作目录
@@ -147,14 +175,24 @@ function splitFolder (sourceData) {
 }
 
 
-function uploadOperationLog (order, message) {
+function uploadOperationLog () {
   const operationLogPath = 'C:/Users';
-  if (!fs.existsSync(path.join(operationLogPath, 'baiduOperationLog.txt'))) {
-    fs.writeFileSync(path.join(operationLogPath, 'baiduOperationLog.txt'), '', 'utf8')
-  }
-  let logs = fs.readFileSync(path.join(operationLogPath, 'baiduOperationLog.txt'), 'utf8')
-  logs += `时间: ${new Date()} \n \n 输入指令: ${order} \n\n 返回信息: ${message}\n\n`;
-  fs.writeFileSync(path.join(operationLogPath, 'baiduOperationLog.txt'), logs, 'utf8')
+  operations.forEach(operation => {
+    fs.stat(path.join(operationLogPath, 'baiduOperationLog.txt'), function (err, stat) {
+      if (err) {
+        let logs = `时间: ${new Date()} \n \n 输入指令: ${operation.order} \n\n 返回信息: ${operation.message}\n\n`;
+        fs.writeFile(path.join(operationLogPath, 'baiduOperationLog.txt'), logs, () => {})
+        return
+
+      } else {
+        fs.readFile(path.join(operationLogPath, 'baiduOperationLog.txt'), (err, data) => {
+          if (err) return
+          let logs = `时间: ${new Date()} \n \n 输入指令: ${operation.order} \n\n 返回信息: ${operation.message}\n\n`;
+          fs.writeFile(path.join(operationLogPath, 'baiduOperationLog.txt'), data + logs, () => {})
+        })
+      }
+    })
+  })
 }
 
 subProcess.setLoginSuccess = function (data) {
