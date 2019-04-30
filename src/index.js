@@ -48,7 +48,7 @@ function createWindow () {
     console.log('正在检查更新')
   });
   autoUpdater.on('update-available', function (info) { // 检查到新版本
-    win.webContents.send('updateMessage', true)
+    win.webContents.send('updateMessage', info)
   });
   autoUpdater.on('update-not-available', function (info) {
     fs.writeFileSync('update-not-available.txt', '正在使用最新版本')

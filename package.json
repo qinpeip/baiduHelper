@@ -2,7 +2,7 @@
   "name": "electron-boilerplate",
   "productName": "baiduHelper",
   "description": "百度网盘助手",
-  "version": "2.1.8",
+  "version": "2.2.1",
   "private": true,
   "author": "qinpeipei",
   "copyright": "© 2017, Gumby inc.",
@@ -36,7 +36,7 @@
     "e2e": "mocha temp/e2e.js --require source-map-support/register",
     "test": "npm run unit && npm run e2e",
     "start": "node build/start.js",
-    "build": "webpack --config=build/webpack.app.config.js --env=production && electron-builder"
+    "build": "webpack --config=build/webpack.app.config.js --env=production && electron-builder -c.releaseInfo.releaseNotesFile=./releaseNote.json"
   },
   "dependencies": {
     "electron-updater": "^4.0.6",

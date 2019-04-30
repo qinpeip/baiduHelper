@@ -24,7 +24,7 @@ ipcRenderer.send('checkForUpdates')
 
 ipcRenderer.on('updateMessage', (e, message) => {
   if (message) {
-    showUpdateProgress()
+    showUpdateProgress(message)
   } else {
     $('.progress-mask').remove()
   }
@@ -69,19 +69,19 @@ subProcess.messageChangeHandle = async function (data) {
 async function verifyIsLogin () {
   if (fs.existsSync(path.join(process.cwd(), './pcs_config.json'))) {
     let loginUsedata = JSON.parse(fs.readFileSync(path.join(process.cwd(), './pcs_config.json')))
-    if (loginUsedata.baidu_user_list[0] && loginUsedata.baidu_user_list[0].bduss) {
+    if (loginUsedata.baidu_user_list && loginUsedata.baidu_user_list[0] && loginUsedata.baidu_user_list[0].bduss) {
       setTimeout(() => {checkListPage()}, 200)
     } else {
       // 尝试自动登录
-      autoLog()
+      autoLogin()
     }
   } else {
     // 尝试自动登录
-    autoLog()
+    autoLogin()
   }
 }
 
-async function autoLog () {
+async function autoLogin () {
   let bduss = mainWindow.localStorageGet('bduss')
   if (bduss) {
     let message = await subProcess.runOrder(`login --bduss=${bduss}`)

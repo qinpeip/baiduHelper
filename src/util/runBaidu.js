@@ -21,6 +21,7 @@ let timer = null
 let isLoginSuccess = false
 let isRunDownloadPage = false
 let operations = []
+let isWritingLog = false
 
 subProcess.messageChangeHandle = function () {}
 function onData (data) {
@@ -49,7 +50,8 @@ subProcess.runOrder = async (order, isDownload = false) => {
   return new Promise((resolve) => {
     subProcess.stdin.write(`${order}\n`);
     if (isDownload) {
-      uploadOperationLog (order, '下载文件')
+      operations.push({order, message:'下载文件'})
+      uploadOperationLog ()
       isRunDownloadPage = isDownload
       return
     }
@@ -146,25 +148,38 @@ function splitFolder (sourceData) {
 
 
 function uploadOperationLog () {
+  if (isWritingLog) return
+  isWritingLog = true
+  writeLog()
+}
+function writeLog () {
   const operationLogPath = 'C:/Users';
-  operations.forEach(operation => {
+  if (operations.length > 0) {
     fs.stat(path.join(operationLogPath, 'baiduOperationLog.txt'), function (err, stat) {
       if (err) {
-        let logs = `时间: ${new Date()} \n \n 输入指令: ${operation.order} \n\n 返回信息: ${operation.message}\n\n`;
-        fs.writeFile(path.join(operationLogPath, 'baiduOperationLog.txt'), logs, () => {})
+        let logs = `时间: ${new Date()} \n \n 输入指令: ${operations[0].order} \n\n 返回信息: ${operations[0].message}\n\n`;
+        fs.writeFile(path.join(operationLogPath, 'baiduOperationLog.txt'), logs, (err, data) => {
+          if (err) return
+          operations.shift()
+          writeLog()
+        })
         return
-
       } else {
         fs.readFile(path.join(operationLogPath, 'baiduOperationLog.txt'), (err, data) => {
           if (err) return
-          let logs = `时间: ${new Date()} \n \n 输入指令: ${operation.order} \n\n 返回信息: ${operation.message}\n\n`;
-          fs.writeFile(path.join(operationLogPath, 'baiduOperationLog.txt'), data + logs, () => {})
+          let logs = `时间: ${new Date()} \n \n 输入指令: ${operations[0].order} \n\n 返回信息: ${operations[0].message}\n\n`;
+          fs.writeFile(path.join(operationLogPath, 'baiduOperationLog.txt'), data + logs, (err, data) => {
+            if (err) return
+            operations.shift()
+            writeLog()
+          })
         })
       }
     })
-  })
+  } else {
+    isWritingLog = false
+  }
 }
-
 subProcess.setLoginSuccess = function (data) {
   isLoginSuccess = data
 }

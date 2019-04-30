@@ -6,10 +6,12 @@
   right: 0;
   background-color: rgba(76, 76, 76, 0.8);
   color: #ffc107;
+  height: 100%;
 }
 .progress-mask .progress-content {
   display: flex;
   font-size: 14px;
+  width: 100%;
 }
 .progress-mask .progress-content .update-progress {
   width: 150px;
@@ -24,5 +26,16 @@
   height: 100%;
   width: 0;
   background-color: #06a8ff;
+}
+.progress-mask .update-message {
+  margin-top: 10px;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  color: #000;
+}
+.progress-mask .update-message div {
+  margin: 2px 0;
 }
 /*# sourceMappingURL=progress.css.map */
