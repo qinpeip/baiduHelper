@@ -17,23 +17,21 @@ let subProcess = spawn(baidu)
 subProcess.on('error', (err) => {console.log('err', err)})
 
 let message = ''
-let isFirst = true
 let timer = null
 let isLoginSuccess = false
 let isRunDownloadPage = false
 let operations = []
 
+subProcess.messageChangeHandle = function () {}
 function onData (data) {
   if (isRunDownloadPage) {
     runDownloadPage(transformStr(data.toString()), () => {
       isRunDownloadPage = false;
+      subProcess.isRunOrder = false;
     })
   } else {
-    if (isFirst) {
-      isFirst = false
-    } else {
-      message += data
-    }
+    message += data
+    subProcess.messageChangeHandle && subProcess.messageChangeHandle(message)
   }
 }
 
@@ -60,19 +58,11 @@ subProcess.runOrder = async (order, isDownload = false) => {
         if (message) {
           operations.push({order, message})
           uploadOperationLog()
-          if (message.includes('No permission to do this operation')) {
-            bugfix(4)
-            message = null
-            return
-          }
-          if (message.includes('保存配置成功') && order.includes('-appid')) {
-            subProcess.stdin.write(`ls\n`);
-            message = null
-            return
-          }
           if (message.includes('timeout awaiting response headers')) {
-            subProcess.stdin.write(`${order}\n`)
+            dialog.showErrorBox('服务器错误', '远程主机强制关闭了现有连接。')
             message = null
+            clearInterval(timer)
+            timer = null
             return
           }
           if (message.includes('wsarecv: An existing connection was forcibly closed by the remote host.')) {
@@ -110,18 +100,6 @@ function transformStr (data) {
   if (typeof data !== 'string') return []
   data = data.split('\n')
   data = data.filter(item => item.trim())
-  if (data.some(item => item.includes('手机'))) {
-    return {
-      code: 100001,
-      data:data
-    }
-  }
-  if (data.some(item => item.includes('以查看验证码'))) {
-    return {
-      code: 100002,
-      data:data
-    }
-  }
   if (data.some(item =>item.includes('远端服务器返回错误'))) {
     return {
       code: 400001,
@@ -131,14 +109,6 @@ function transformStr (data) {
   return {
     code: 0,
     data: data
-  }
-}
-
-function bugfix (code) {
-  switch (code) {
-    case 4:
-      subProcess.stdin.write(`config set -appid 266719\n`);
-      break;
   }
 }
 
@@ -199,4 +169,10 @@ subProcess.setLoginSuccess = function (data) {
   isLoginSuccess = data
 }
 
+subProcess.getMessage = function () {
+  return message
+}
+subProcess.removeMessage = function () {
+  message = null
+}
 export default subProcess

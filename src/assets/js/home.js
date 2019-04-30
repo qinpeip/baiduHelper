@@ -1,5 +1,6 @@
-
-const mainWindow = require('electron').remote.getCurrentWindow();
+const { remote } = require('electron')
+const mainWindow = remote.getCurrentWindow();
+const dialog = remote.dialog;
 import fs from 'fs';
 import path from 'path';
 import { ipcRenderer } from 'electron'
@@ -12,7 +13,6 @@ import '../css/progress.css'
 import back from '../image/back.png';
 import baiduIcon from '../image/baidu_icon.png'
 
-import '../../util/localStorage'
 import $ from './jquery.js'
 import subProcess from '../../util/runBaidu';
 import { runGenerateListPage } from './list'
@@ -36,9 +36,6 @@ ipcRenderer.on('progressMessage', (e, data) => {
   $('.progress-dian').toggle()
 })
 
-const submitBtn = $('.submit button')
-const accout = $('.account input')
-const password = $('.password input')
 
 
 $('.baidu_back').attr({src: back})
@@ -51,54 +48,22 @@ $('.close').click(() => mainWindow.close())
 
 $('.hidden').click(() => mainWindow.minimize())
 
-let loginStep = 0
-
-
-let cmd = ''
-
-$(submitBtn).click(async () =>{
-  if (!$(accout).val().trim()) {
-    $('.error_message p').show().html('账号不能为空')
-    return
+// 先配置appid
+async function setAppid () {
+  let message = await subProcess.runOrder('config set -appid 266719')
+  if (message.data.some(item => item.includes('保存配置成功'))) {
+    verifyIsLogin() // 配置appid成功后尝试自动登录
+  } else {
+    dialog.showErrorBox('错误', '内部配置错误, 请重新启动!')
   }
-  if (!$(password).val().trim()) {
-    $('.error_message p').show().html('密码不能为空')
-    return
-  }
-  let isHidden = $('.valid').is(':hidden')
- if (!isHidden && !$('.valid input').val().trim()) {
-   $('.error_message p').show().html('验证码不能为空')
-   return
- }
- switch(loginStep) {
-   case 0:
-     cmd = `login --username ${$(accout).val()} --password ${$(password).val()}`;
-     let message = await subProcess.runOrder(cmd)
-     console.log(message)
-     loginStep++
-     switch (message.code) {
-       case 100001:
-         $('.valid').show().css({display: 'flex', flexDirection: 'column', height: '60px'})
-         let template = `<option value="1">${message.data[2]}</option><option value="2">${message.data[3]}</option>`
-         $('.valid .valid_select').show().html(template)
-         $('.valid img').hide()
-         break
-       case 100002:
-         $('.valid').show().css({display: 'flex'})
-         $('.valid img').attr({src: message.data[4]})
-         $('.valid .valid_select').hide()
-         break
-     }
-     break
-   case 1:
-     if (!$('.valid').is(':hidden')) {
-       cmd = $('.valid input').val()
-       let message = await subProcess.runOrder(cmd)
-       console.log(message)
-     }
- }
-})
+}
 
+// 当message被赋值以后  表示baiduPCS启动完毕了
+subProcess.messageChangeHandle = async function (data) {
+  subProcess.removeMessage() // 清空message的信息
+  subProcess.messageChangeHandle = null; // 删除该方法, 防止多次触发
+  setAppid()
+}
 
 // 第一次打开验证是否已登录
 async function verifyIsLogin () {
@@ -106,15 +71,22 @@ async function verifyIsLogin () {
     let loginUsedata = JSON.parse(fs.readFileSync(path.join(process.cwd(), './pcs_config.json')))
     if (loginUsedata.baidu_user_list[0] && loginUsedata.baidu_user_list[0].bduss) {
       setTimeout(() => {checkListPage()}, 200)
+    } else {
+      // 尝试自动登录
+      autoLog()
     }
   } else {
     // 尝试自动登录
-    let bduss = mainWindow.localStorageGet('bduss')
-    if (bduss) {
-      let message = await subProcess.runOrder(`login --bduss=${bduss}`)
-      if (message.code === 0) {
-        checkListPage()
-      }
+    autoLog()
+  }
+}
+
+async function autoLog () {
+  let bduss = mainWindow.localStorageGet('bduss')
+  if (bduss) {
+    let message = await subProcess.runOrder(`login --bduss=${bduss}`)
+    if (message.code === 0) {
+      checkListPage()
     }
   }
 }
@@ -127,4 +99,4 @@ function checkListPage () {
   runGenerateListPage()
   $('.go-back').show()
 }
-verifyIsLogin()
+// verifyIsLogin()
